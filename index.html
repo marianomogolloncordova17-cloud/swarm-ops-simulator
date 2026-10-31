@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Swarm Ecosystem · Petals Simulator</title>
+<style>
+  body { background-color: #0a0f18; color: #dae3f1; font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+  h1 { font-size: 2.5rem; margin-bottom: 10px; color: #4cc2ff; }
+  p { color: #8798ad; max-width: 600px; margin-bottom: 40px; line-height: 1.5; }
+  .grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+  .card { background: #131c2b; border: 1px solid #22304a; border-radius: 12px; padding: 30px; width: 280px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s; }
+  .card:hover { transform: translateY(-5px); border-color: #4cc2ff; }
+  .card h2 { font-size: 1.2rem; margin-top: 0; color: #dae3f1; }
+  .card p { font-size: 0.9rem; margin-bottom: 0; text-align: left; }
+  .tag { display: inline-block; font-size: 0.75rem; padding: 3px 8px; border-radius: 999px; background: #1f5c43; color: #7df0bd; margin-bottom: 15px; }
+  .tag.chaos { background: #6b2733; color: #ff9aa5; }
+  .tag.econ { background: #23405c; color: #4cc2ff; }
+</style>
+</head>
+<body>
+  <h1>🕸️ AI Swarm Ecosystem</h1>
+  <p>Interactive simulators for decentralized AI infrastructure. From network physics to chaos engineering and unit economics.</p>
+  
+  <div class="grid">
+    <a href="./petals.html" class="card">
+      <span class="tag">v3.3</span>
+      <h2>🌐 LAN Swarm Simulator</h2>
+      <p>Simulates Llama-3.1-8B across 6 peers. Compare WAN vs LAN physics and see the cost viability for CTOs.</p>
+    </a>
+    
+    <a href="./chaos.html" class="card">
+      <span class="tag chaos">v3.5</span>
+      <h2>🌪️ Chaos Engineering</h2>
+      <p>Kill the swarm. Seeded PRNG, scripted failure scenarios, and exportable post-mortems (MD/JSON).</p>
+    </a>
+    
+    <a href="./calculadora.html" class="card">
+      <span class="tag econ">v3.6</span>
+      <h2>🧮 Unit Economics</h2>
+      <p>Import chaos post-mortems to calculate real churn costs. Compare API vs Cloud GPU vs Owned Hardware.</p>
+    </a>
+  </div>
+</body>
+</html>
