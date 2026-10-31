@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IUE-Sim v3.6 · Unit Economics de Inferencia · puente SWARM-OPS + Laya AI</title>
+<style>
+:root{
+  --bg:#0a0f18;--panel:#0f1622;--card:#131c2b;--line:#22304a;--line2:#2c3d5e;
+  --txt:#dae3f1;--dim:#8798ad;--cyan:#4cc2ff;--green:#3fd68f;--orange:#ffb454;
+  --red:#ff5c6a;--violet:#a78bfa;
+  --mono:ui-monospace,'Cascadia Code',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:radial-gradient(1100px 520px at 75% -10%,#132342 0%,var(--bg) 60%) fixed,var(--bg);
+  color:var(--txt);font:15px/1.55 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;padding:22px;
+}
+.wrap{max-width:1300px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+h1{font-size:25px;letter-spacing:.3px}
+h1 .ver{font-size:12px;color:var(--dim);font-weight:400;margin-left:8px;font-family:var(--mono)}
+.sub{color:var(--dim);font-size:13.5px;margin-top:4px;max-width:660px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.badge{font-size:11.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--dim);font-family:var(--mono)}
+.badge.b-inf{border-color:#23405c;color:var(--cyan)}
+.badge.b-lat{border-color:#5a4a2a;color:var(--orange)}
+.hright{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.langsw{display:flex;gap:6px}
+.lbtn{font:600 11px/1 var(--mono);letter-spacing:.5px;border:1px solid var(--line2);background:transparent;color:var(--dim);padding:5px 13px;border-radius:999px;cursor:pointer;transition:filter .15s}
+.lbtn:hover{filter:brightness(1.3)}
+.lbtn.on{background:#132c46;border-color:var(--cyan);color:var(--cyan)}
+.stats{display:grid;grid-template-columns:repeat(8,1fr);gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);margin-bottom:2px}
+.stat b{font-size:15.5px;font-family:var(--mono);font-weight:600;white-space:nowrap}
+.stat b small{font-size:10.5px;color:var(--dim);font-weight:400}
+#stMargin{color:var(--green)}
+.grid-main{display:grid;grid-template-columns:1fr 358px;gap:14px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h3{font-size:14.5px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;gap:14px}
+.lbl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--dim);margin:10px 0 5px}
+select{background:#0d1526;color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px 10px;width:100%;font:inherit;font-size:13.5px}
+input[type=range]{width:100%;accent-color:var(--cyan)}
+#chkKv8{accent-color:var(--violet)}
+input[type=number]{background:#0d1526;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px;width:104px}
+.rlabel{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.rlabel b{color:var(--cyan);font-family:var(--mono);font-size:13px}
+.btns{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.btn{border:1px solid var(--line2);background:#182338;color:var(--txt);padding:10px 14px;border-radius:10px;cursor:pointer;font:600 13.5px/1 system-ui;transition:filter .15s}
+.btn:hover{filter:brightness(1.25)}
+.btn.go{border-color:#1f5c43;background:#12301f;color:#7df0bd}
+.btn.ghost{background:transparent;color:var(--dim)}
+.hint{font-size:11.5px;color:var(--dim);margin-top:10px;line-height:1.5}
+.qbox{display:inline-flex;align-items:center;gap:7px;font:600 12px/1 system-ui;color:var(--dim);border:1px solid var(--line2);border-radius:999px;padding:6px 12px;cursor:pointer;user-select:none;white-space:nowrap;margin-top:10px}
+.qbox input{accent-color:var(--violet);margin:0;cursor:pointer}
+.qbox.on{background:#221c38;border-color:var(--violet);color:var(--violet)}
+.vbar{display:flex;height:24px;border-radius:8px;overflow:hidden;border:1px solid var(--line2);margin:10px 0 6px;background:#0b1322}
+.vbar div{height:100%;min-width:0}
+#vw{background:linear-gradient(180deg,#2a9fd4,#1c7aa6)}
+#vk{background:linear-gradient(180deg,#8f79e0,#6f5cc0)}
+#vo{background:linear-gradient(180deg,#d99a45,#b57e33)}
+#vf{background:#101a2c}
+.vleg{display:flex;gap:12px;flex-wrap:wrap;font-size:10.5px;color:var(--dim);font-family:var(--mono)}
+.vleg i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
+#vbarTxt{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:6px}
+.cfg{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-top:8px;font-size:12.3px;flex-wrap:wrap}
+.cfg b{font-family:var(--mono);font-size:12.5px}
+.cfg .m{color:var(--dim);font-family:var(--mono);font-size:11.5px}
+.cfg.best{border-color:var(--green);box-shadow:0 0 0 1px var(--green)}
+.qbadge{font-size:9.5px;font-family:var(--mono);padding:2px 8px;border-radius:999px;border:1px solid var(--line2);color:var(--dim);white-space:nowrap}
+.qbadge.best{border-color:#1f5c43;color:var(--green)}
+.qbadge.warn{border-color:#5a4a2a;color:var(--orange)}
+.qbadge.bad{border-color:#6b2733;color:var(--red)}
+.gapwarn{display:none;margin-top:10px;font-size:12px;color:var(--red);border:1px dashed #6b2733;border-radius:10px;padding:8px 12px;font-family:var(--mono)}
+.gapwarn.on{display:block}
+.comp3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ccard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.ccard.hl{border-color:var(--green);box-shadow:0 0 0 1px var(--green),0 0 22px rgba(63,214,143,.15)}
+.ccard h4{font-size:14.5px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.cbadge{font-size:9.5px;font-family:var(--mono);padding:3px 8px;border-radius:999px;border:1px solid;white-space:nowrap}
+.cb-best{color:var(--green);border-color:#1f5c43}
+.cbig{font-family:var(--mono);font-size:22px;margin:6px 0 2px}
+.cbig small{font-size:11px;color:var(--dim)}
+.ccard ul{list-style:none;display:flex;flex-direction:column;gap:5px;font-size:12.2px;color:#b9c7dc;margin-top:8px}
+.ccard li::before{content:'▸ ';color:var(--cyan)}
+.ccard li b{color:var(--txt);font-family:var(--mono)}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;align-items:stretch}
+#beChart{width:100%;height:auto}
+.beleg{display:flex;gap:14px;flex-wrap:wrap;font-size:10.5px;color:var(--dim);font-family:var(--mono);margin-top:8px}
+.beleg i{width:14px;height:3px;display:inline-block;margin-right:5px;vertical-align:3px}
+.outbox{font-family:var(--mono);font-size:12px;line-height:1.7;color:#b9c7dc;background:#0d1526;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px}
+.outbox b{color:var(--cyan)}
+.outbox .warn{color:var(--orange)}
+#layaStatus{display:none;margin-top:8px}
+#layaStatus.k-laya{color:var(--violet);border-color:#3d2f66}
+#layaStatus.k-ok{color:var(--green);border-color:#1f5c43}
+#layaStatus.k-warn{color:var(--orange);border-color:#5a4a2a}
+#layaStatus.k-err{color:var(--red);border-color:#6b2733}
+.testrow{font-family:var(--mono);font-size:11.8px;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.03);margin-top:4px;line-height:1.5}
+.testrow.ok{color:#8fe6bd}
+.testrow.bad{color:#ff9aa5}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+summary{cursor:pointer;font-weight:600;font-size:13.5px}
+summary small{color:var(--dim);font-weight:400;margin-left:6px}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12.5px;flex-wrap:wrap}
+.audit{background:#0d1526;border:1px dashed var(--line2);border-radius:14px;padding:16px;font-size:12.3px;color:#b9c7dc}
+.audit h3{font-size:14px;margin-bottom:8px;color:var(--txt)}
+.audit b{color:var(--cyan)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.audit ul{margin:6px 0 0 0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.audit .no li::before{content:'✗ ';color:var(--red)}
+.audit .yes li::before{content:'✓ ';color:var(--green)}
+footer{color:#54637a;font-size:11.5px;text-align:center;padding:6px 0 14px;font-family:var(--mono);line-height:1.8}
+.ladder{color:#7e93ad}
+@media (max-width:1020px){
+  .grid-main,.grid2,.comp3,.cols{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(4,1fr)}
+  .hright{align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1 data-i18n="h1">🧮 IUE-Sim <span class="ver">inference unit economics · free tier · v3.6 · puente SWARM-OPS + Laya AI</span></h1>
+      <p class="sub" data-i18n="sub">Antes de escalar tu startup de IA, simula tu factura de inferencia: API vs GPU en la nube vs hardware propio. Física real de VRAM (pesos + KV cache GQA), throughput memory-bound con batching, sizing por tráfico con factor pico, break-even y margen bruto — con 7 auto-tests (t7 = puente SWARM-OPS), importación de post-mortems custodiada por Laya AI y precios editables.</p>
+    </div>
+    <div class="hright">
+      <div class="langsw" role="group" aria-label="Idioma / Language">
+        <button id="langEs" class="lbtn on" title="Español">ES</button>
+        <button id="langEn" class="lbtn" title="English">EN</button>
+      </div>
+      <div class="badges">
+        <span class="badge b-inf" data-i18n="b1">núcleo puro · 7 auto-tests</span>
+        <span class="badge b-lat" data-i18n="b2">precios editables · snapshot 2026</span>
+        <span class="badge b-inf" data-i18n="b3">escenarios por URL · export MD/CSV</span>
+        <span class="badge b-lat" data-i18n="b4">puente SWARM-OPS · post-mortem custodiado por Laya AI</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="stats">
+    <div class="stat"><span data-i18n="lVram">VRAM modelo+KV</span><b id="stVram">—</b></div>
+    <div class="stat"><span data-i18n="lGpu">Config mínima</span><b id="stGpu">—</b></div>
+    <div class="stat"><span data-i18n="lTpsU">tok/s por usuario</span><b id="stTpsU">—</b></div>
+    <div class="stat"><span data-i18n="lTpsA">tok/s agregados</span><b id="stTpsA">—</b></div>
+    <div class="stat"><span data-i18n="lMo">Self-hosted $/mes</span><b id="stMo">—</b></div>
+    <div class="stat"><span data-i18n="lApi">API $/mes</span><b id="stApi">—</b></div>
+    <div class="stat"><span data-i18n="lBe">Break-even</span><b id="stBe">—</b></div>
+    <div class="stat"><span data-i18n="lMargin">Mejor margen bruto</span><b id="stMargin">—</b></div>
+  </section>
+
+  <main class="grid-main">
+    <div class="card">
+      <h3><span data-i18n="sizingTitle">📐 Sizing — ¿qué hardware necesito?</span> <span id="scenId" class="badge b-inf">escenario —</span></h3>
+      <label class="lbl" data-i18n="lblModel">Modelo</label>
+      <select id="selModel"></select>
+      <div class="prow">
+        <div style="flex:1;min-width:130px">
+          <label class="lbl" data-i18n="lblQuant">Cuantización</label>
+          <select id="selQuant"></select>
+        </div>
+        <div style="flex:1;min-width:130px">
+          <label class="lbl" data-i18n="lblCtx">Contexto por usuario</label>
+          <select id="selCtx"></select>
+        </div>
+      </div>
+      <label class="lbl rlabel"><span data-i18n="lblUsers">Usuarios concurrentes</span> <b id="usersVal">10</b></label>
+      <input type="range" id="rngUsers" min="0" max="80" step="1" value="40">
+      <label class="qbox" id="qWrap"><input type="checkbox" id="chkKv8"> <span data-i18n="kv8">KV cache en FP8 (mitad de KV)</span></label>
+      <div class="vbar"><div id="vw" style="width:70%"></div><div id="vk" style="width:7%"></div><div id="vo" style="width:6%"></div><div id="vf" style="width:17%"></div></div>
+      <div class="vleg">
+        <span><i style="background:#2a9fd4"></i><span data-i18n="legW">pesos</span></span>
+        <span><i style="background:#8f79e0"></i><span data-i18n="legK">KV cache</span></span>
+        <span><i style="background:#d99a45"></i><span data-i18n="legO">overhead CUDA</span></span>
+        <span><i style="background:#101a2c"></i><span data-i18n="legF">libre</span></span>
+      </div>
+      <div id="vbarTxt">—</div>
+      <div id="cfgList"></div>
+      <div id="gapWarn" class="gapwarn"></div>
+      <p class="hint" data-i18n="hintSizing">💡 La barra muestra la VRAM de UNA réplica del modelo (pesos + KV cache del contexto + overhead). Cada fila es una GPU candidata con la flota mínima que cubre tus usuarios Y tu tráfico pico: la verde es la más barata por token.</p>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <h3 data-i18n="econTitle">💸 Tráfico y economía</h3>
+        <label class="lbl rlabel"><span data-i18n="lblTraffic">Tokens / mes (demanda)</span> <b id="trafficVal">100 M</b></label>
+        <input type="range" id="rngTraffic" min="0" max="100" step="1" value="50">
+        <label class="lbl rlabel"><span data-i18n="lblIn">% tokens de entrada (prompt)</span> <b id="inVal">70%</b></label>
+        <input type="range" id="rngIn" min="10" max="90" step="5" value="70">
+        <label class="lbl rlabel"><span data-i18n="lblPeak">Factor pico</span> <b id="peakVal">×2.0</b></label>
+        <input type="range" id="rngPeak" min="10" max="40" step="5" value="20">
+        <label class="lbl" data-i18n="lblApi">Proveedor API (comparable)</label>
+        <select id="selApi"></select>
+        <div class="prow">
+          <span style="color:var(--dim);font-size:12px" data-i18n="apiPin">$ / 1M entrada:</span><input type="number" id="apiIn" step="0.01" min="0">
+          <span style="color:var(--dim);font-size:12px" data-i18n="apiPout">$ / 1M salida:</span><input type="number" id="apiOut" step="0.01" min="0">
+        </div>
+        <label class="lbl rlabel"><span data-i18n="lblRev">Tu precio (ingreso $ / 1M tokens)</span> <b id="revVal">$8.00</b></label>
+        <input type="range" id="rngRev" min="1" max="60" step="0.5" value="8">
+        <details style="margin-top:12px">
+          <summary data-i18n="gpuPricesTitle">$/hr por GPU (nube) <small>snapshot editable</small></summary>
+          <div class="prow"><span>L4</span><input type="number" id="gpuL4" step="0.05" min="0"></div>
+          <div class="prow"><span>A10G</span><input type="number" id="gpuA10" step="0.05" min="0"></div>
+          <div class="prow"><span>RTX 4090</span><input type="number" id="gpu4090" step="0.05" min="0"></div>
+          <div class="prow"><span>A100-80</span><input type="number" id="gpuA100" step="0.05" min="0"></div>
+          <div class="prow"><span>H100-80</span><input type="number" id="gpuH100" step="0.05" min="0"></div>
+          <p class="hint" data-i18n="gpuPricesHint">Precios on-demand de referencia (Lambda/RunPod/Vast 2026). Edítalos con tu proveedor real: todo el sizing se recalcula al instante.</p>
+        </details>
+      </div>
+
+      <div class="card">
+        <h3 data-i18n="shareTitle">🔗 Escenario</h3>
+        <div class="btns">
+          <button id="btnShare" class="btn go" data-i18n="btnShare">🔗 Copiar enlace del escenario</button>
+          <button id="btnMd" class="btn" data-i18n="btnMd">⬇ Informe .md</button>
+          <button id="btnCsv" class="btn ghost" data-i18n="btnCsv">⬇ Datos .csv</button>
+        </div>
+        <div id="urlOut" class="outbox" style="display:none"></div>
+      </div>
+    </div>
+  </main>
+
+  <section class="card">
+    <h3 data-i18n="compTitle">⚖️ Unit economics — tres formas de servir tus tokens</h3>
+    <div class="comp3">
+      <article class="ccard" id="compApi">
+        <h4><span data-i18n="cmpApi">☁️ API gestionada</span> <span class="cbadge cb-best" id="bestApi" style="display:none" data-i18n="cbBest">MÁS BARATO /1M</span></h4>
+        <div class="cbig" id="cApi1m">—</div>
+        <ul>
+          <li><span data-i18n="cmpMo">$ / mes a tu tráfico:</span> <b id="cApiMo">—</b></li>
+          <li><span data-i18n="cmpMargin">Margen bruto:</span> <b id="cApiMg">—</b></li>
+          <li data-i18n="apiNote">Elasticidad infinita, cero ops, TTFT bajo — pero tus datos salen a terceros y el precio no lo controlas.</li>
+        </ul>
+      </article>
+      <article class="ccard" id="compGpu">
+        <h4><span data-i18n="cmpGpu">🖥️ GPU en la nube (self-hosted)</span> <span class="cbadge cb-best" id="bestGpu" style="display:none" data-i18n="cbBest">MÁS BARATO /1M</span></h4>
+        <div class="cbig" id="cGpu1m">—</div>
+        <ul>
+          <li><span data-i18n="cmpMo">$ / mes a tu tráfico:</span> <b id="cGpuMo">—</b></li>
+          <li><span data-i18n="cmpMargin">Margen bruto:</span> <b id="cGpuMg">—</b></li>
+          <li data-i18n="gpuNote">Pagas por hora aunque no haya tráfico: el sizing es por PICO. VPC privada, modelos abiertos, control del stack.</li>
+        </ul>
+      </article>
+      <article class="ccard" id="compOwn">
+        <h4><span data-i18n="cmpOwn">🏠 Hardware propio (CapEx)</span> <span class="cbadge cb-best" id="bestOwn" style="display:none" data-i18n="cbBest">MÁS BARATO /1M</span></h4>
+        <div class="cbig" id="cOwn1m">—</div>
+        <ul>
+          <li><span data-i18n="cmpMo">$ / mes a tu tráfico:</span> <b id="cOwnMo">—</b></li>
+          <li><span data-i18n="cmpMargin">Margen bruto:</span> <b id="cOwnMg">—</b></li>
+          <li data-i18n="ownNote">CapEx amortizado a 24 meses + energía ($0.12/kWh). Soberanía 100%: tus datos nunca salen del router.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <h3 data-i18n="chartTitle">📉 Break-even — $/1M tokens vs tráfico mensual</h3>
+      <svg id="beChart" viewBox="0 0 720 250" role="img" aria-label="break-even chart"></svg>
+      <div class="beleg">
+        <span><i style="background:var(--orange)"></i><span data-i18n="legApi">API ($/1M plana)</span></span>
+        <span><i style="background:var(--cyan)"></i><span data-i18n="legSelf">Self-hosted nube (escalera: flota por pasos)</span></span>
+        <span><i style="background:var(--green);height:9px;width:9px;border-radius:50%"></i><span data-i18n="legBe">cruce = break-even</span></span>
+        <span><i style="background:var(--violet);height:9px;width:9px;border-radius:50%"></i><span data-i18n="legNow">tu tráfico hoy</span></span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 data-i18n="sensTitle">🌡️ Sensibilidad y riesgo</h3>
+      <label class="lbl rlabel"><span data-i18n="lblShock">Shock de precios API (bajada)</span> <b id="shockVal">−0%</b></label>
+      <input type="range" id="rngShock" min="0" max="90" step="5" value="0">
+      <label class="lbl" data-i18n="lblAvail">Disponibilidad comprometida (SLA)</label>
+      <select id="selAvail">
+        <option value="0.99">99.0%</option>
+        <option value="0.995">99.5%</option>
+        <option value="0.999" selected>99.9%</option>
+        <option value="0.9999">99.99%</option>
+      </select>
+      <div id="sensOut" class="outbox">—</div>
+      <div id="riskOut" class="outbox">—</div>
+      <div class="prow" style="margin-top:12px;justify-content:flex-start">
+        <button id="btnImportPm" class="btn" data-i18n="btnPmIn">📂 Importar Post-Mortem (JSON)</button>
+        <input type="file" id="pmFile" accept=".json,application/json" style="display:none">
+      </div>
+      <div id="layaStatus" class="outbox" role="status" aria-live="polite"></div>
+      <div id="churnOut" class="outbox" style="margin-top:10px">—</div>
+      <p class="hint" data-i18n="hintRisk">🪙 La v4.0 (Tokenomics) parte de aquí: cada causa de fallo del simulador SWARM-OPS (cascade, thermal, partition…) es un riesgo con prima — antes de acuñar un token, estresa la economía.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3><span data-i18n="testsTitle">🧪 Auto-tests del núcleo (puro, sin DOM)</span>
+      <button id="btnTests" class="btn go" data-i18n="btnTests">▶ Ejecutar 7 tests</button>
+    </h3>
+    <div id="testsOut" class="outbox" data-i18n="testsIdle">Sin ejecutar todavía — el núcleo es el mismo que corre en cada render.</div>
+  </section>
+
+  <section class="audit">
+    <h3 data-i18n="auditTitle">🔬 Nota para la auditoría — qué calcula de verdad IUE-Sim</h3>
+    <div class="cols">
+      <div>
+        <b data-i18n="yesHead">Calculado con fórmulas de primer principio:</b>
+        <ul class="yes">
+          <li data-i18n="a1"><b>KV cache canónica:</b> 2 × capas × cabezas-KV (GQA) × dim_cabeza × bytes/tipo — Llama-3.1-8B fp16 = 131,072 B/token ⇒ ~1.07 GB por secuencia de 8K.</li>
+          <li data-i18n="a2"><b>Pesos por cuantización:</b> params × bytes/param (FP16 2.0 · INT8 1.06 con escalas · NF4 0.55) — 70B: 141.2 / 74.8 / 38.8 GB.</li>
+          <li data-i18n="a3"><b>Decode memory-bound con batching:</b> tok/s = BW_efectiva × B / (pesos + B × KV del contexto), con techo de cómputo 2 × params_activos × util 0.35 — el batching amortiza pesos pero cada secuencia paga SU KV completa.</li>
+          <li data-i18n="a4"><b>Tensor parallel:</b> n GPUs suman ancho de banda con eficiencia 0.85; overhead CUDA 1.5 GB/GPU descontado de la VRAM usable.</li>
+          <li data-i18n="a5"><b>Sizing honesto:</b> flota mínima que cabe en VRAM (pesos + KV + overhead) Y cubre usuarios concurrentes Y tráfico pico (demanda media × factor pico). Usuarios &gt; slots ⇒ cola visible.</li>
+          <li data-i18n="a6"><b>Costes auditables:</b> nube = n × $/hr × 730; propio = CapEx/24 + watts × 730 × $0.12/kWh; API = mezcla entrada/salida editable.</li>
+          <li data-i18n="a7"><b>Break-even por barrido:</b> la escalera de coste self-hosted (flota por pasos) se barre contra el precio plano de API hasta el cruce — no hay una fórmula mágica.</li>
+          <li data-i18n="a8"><b>Puente SWARM-OPS (v3.6, con Laya AI):</b> «📂 Importar Post-Mortem (JSON)» envía el archivo a Laya AI (127.0.0.1:8787/ask): la primitiva <b>noul</b> valida <b>sla.last.tokensLost</b> y <b>sla.last.reprefTokens</b>; la primitiva <b>choice</b> clasifica la causa raíz. Si Laya no está encendido, importa con la lógica estándar: Coste Real del Churn = (perdidos + re-prefill) × tu precio $/1M ÷ 1e6 — t7 verifica churnFromPM (pura, sin DOM ni red).</li>
+        </ul>
+      </div>
+      <div>
+        <b data-i18n="noHead">Lo que NO modela (honestidad ante todo):</b>
+        <ul class="no">
+          <li data-i18n="n1">Benchmarks reales: son fórmulas first-principles — espera ±30–50% vs vLLM/TensorRT-LLM en producción.</li>
+          <li data-i18n="n2">PagedAttention ni fragmentación de memoria: la VRAM se contabiliza ideal.</li>
+          <li data-i18n="n3">TTFT ni coste del prefill: solo decode; el primer token puede tardar mucho más con contextos largos.</li>
+          <li data-i18n="n4">Red multi-nodo (IB/NVLink entre cajas) ni pipeline parallel: TP idealizado.</li>
+          <li data-i18n="n5">Speculative decoding ni continuous batching dinámico: batch fijo por snapshot.</li>
+          <li data-i18n="n6">La demanda es un factor escalar, no una distribución horaria; los precios son snapshot 2026 editables, no cotizaciones en vivo.</li>
+          <li data-i18n="n7">El coste del churn usa tu precio de VENTA como proxy del dinero perdido: solo cubre sla.last (la última corrida del post-mortem), no el coste marginal de cómputo ni el agregado multi-corrida (eso vive en sla.aggregate).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span data-i18n="footer">IUE-Sim v3.6 · la capa gratuita del stack — cada número es auditable y cada escenario es compartible</span>
+    <br><span class="ladder" data-i18n="ladder">🕸️ SWARM-OPS (física operacional) → 🧮 IUE-Sim (unit economics) → 🪙 v4.0 Tokenomics (¿sobrevive tu token?) → 📡 monitoreo en vivo (roadmap)</span>
+  </footer>
+</div>
+
+<script id="iue-core">
+'use strict';
+/* ============================================================
+   IUE-SIM v3.6 · NÚCLEO PURO (sin DOM) — testeable en Node
+   · puente SWARM-OPS: churnFromPM(post-mortem JSON) → $ (verificado por t7)
+   · v3.6: la capa UI custodia la importación con Laya AI (primitivas noul + choice)
+   Fórmulas first-principles:
+   · KV cache/token = 2 · L · H_kv (GQA) · d_head · bytes(dtype)
+   · pesos = params × bytes/param (FP16 2.0 · INT8 1.06 · NF4 0.55)
+   · decode memory-bound: tok/s = BW_ef × B / (pesos + B × KV_ctx)
+     con techo de cómputo 2 · params_activos · util 0.35
+   · tensor-parallel: BW_total = n × BW × 0.85 · overhead 1.5 GB/GPU
+   · sizing: flota mínima que cabe en VRAM y cubre usuarios + pico
+   La UI (2º <script>) es solo piel: wiring y render.
+   ============================================================ */
+const GB1=1e9, S_PER_MONTH=2.592e6;           /* 30 días exactos */
+const EFF_BW=0.7, TP_EFF=0.85, OH_GPU=1.5, COMPUTE_UTIL=0.35, MAX_N=16, MAX_BATCH=256;
+
+const MODELS=[
+ {id:'l32-3b', name:'Llama-3.2-3B',        pB:3.2,  actB:3.2,  layers:28, kvH:8, hdim:128, ctxMax:131072},
+ {id:'m7b',    name:'Mistral-7B-v0.3',     pB:7.25, actB:7.25, layers:32, kvH:8, hdim:128, ctxMax:32768},
+ {id:'q25-7b', name:'Qwen2.5-7B',          pB:7.6,  actB:7.6,  layers:28, kvH:4, hdim:128, ctxMax:32768},
+ {id:'l31-8b', name:'Llama-3.1-8B',        pB:8.0,  actB:8.0,  layers:32, kvH:8, hdim:128, ctxMax:131072},
+ {id:'g2-9b',  name:'Gemma-2-9B',          pB:9.2,  actB:9.2,  layers:42, kvH:8, hdim:256, ctxMax:8192},
+ {id:'mix8x7', name:'Mixtral-8x7B (47B)',  pB:46.7, actB:12.9, layers:32, kvH:8, hdim:128, ctxMax:32768},
+ {id:'l31-70b',name:'Llama-3.1-70B',       pB:70.6, actB:70.6, layers:80, kvH:8, hdim:128, ctxMax:131072},
+ {id:'q25-72b',name:'Qwen2.5-72B',         pB:72.7, actB:72.7, layers:80, kvH:8, hdim:128, ctxMax:32768}
+];
+const QUANTS=[
+ {id:'fp16', name:'FP16 / BF16', bpp:2.0,  kvBytes:2},
+ {id:'int8', name:'INT8',        bpp:1.06, kvBytes:1},
+ {id:'nf4',  name:'NF4 (4-bit)', bpp:0.55, kvBytes:2}
+];
+const GPUS=[
+ {id:'l4',   name:'L4',        vram:24, bw:300,  tflops:121, cost:0.75, capex:2800,  watt:72},
+ {id:'a10g', name:'A10G',      vram:24, bw:600,  tflops:125, cost:1.00, capex:3500,  watt:150},
+ {id:'4090', name:'RTX 4090',  vram:24, bw:1008, tflops:165, cost:0.60, capex:1600,  watt:450},
+ {id:'a100', name:'A100-80GB', vram:80, bw:2039, tflops:312, cost:1.90, capex:9000,  watt:400},
+ {id:'h100', name:'H100-80GB', vram:80, bw:3350, tflops:990, cost:2.60, capex:25000, watt:700}
+];
+const APIS=[
+ {id:'gpt4o',  name:'GPT-4o',               pin:2.50, pout:10.00},
+ {id:'4omini', name:'GPT-4o-mini',          pin:0.15, pout:0.60},
+ {id:'sonnet', name:'Claude Sonnet 4',      pin:3.00, pout:15.00},
+ {id:'haiku',  name:'Claude 3.5 Haiku',     pin:0.80, pout:4.00},
+ {id:'flash',  name:'Gemini 2.0 Flash',     pin:0.10, pout:0.40},
+ {id:'l70',    name:'Llama-3.1-70B (hosted)',pin:0.88, pout:0.88},
+ {id:'l8b',    name:'Llama-3.1-8B (hosted)', pin:0.18, pout:0.18},
+ {id:'dsv3',   name:'DeepSeek-V3',          pin:0.27, pout:1.10}
+];
+
+const byId=(a,id)=>a.find(x=>x.id===id)||a[0];
+const kvTokGB=(m,q,kv8)=>2*m.layers*m.kvH*m.hdim*(kv8?1:q.kvBytes)/GB1;
+const wGB=(m,q)=>m.pB*q.bpp;
+const minGpus=(m,q,g)=>Math.max(1,Math.ceil(wGB(m,q)/(g.vram-OH_GPU)));
+const maxBatch=(n,m,q,g,ctx,kv8)=>Math.max(0,Math.floor((n*g.vram-OH_GPU*n-wGB(m,q))/(ctx*kvTokGB(m,q,kv8))));
+const aggTokps=(n,m,q,g,ctx,B,kv8)=>{
+  const kvSeq=ctx*kvTokGB(m,q,kv8), W=wGB(m,q);
+  const mem=n*g.bw*TP_EFF*EFF_BW*B/(W+B*kvSeq);
+  const comp=n*g.tflops*1e12*COMPUTE_UTIL/(2*m.actB*1e9);
+  return Math.min(mem,comp);
+};
+/* flota mínima de la GPU g que cubre `req` tok/s pico con `users` concurrentes */
+const sizeFor=(m,q,g,ctx,users,kv8,req)=>{
+  let fallback=null;
+  for(let n=minGpus(m,q,g);n<=MAX_N;n++){
+    const mb=maxBatch(n,m,q,g,ctx,kv8);
+    if(mb<1) continue;                    /* ni una secuencia cabe */
+    const B=Math.max(1,Math.min(users,mb,MAX_BATCH));
+    const agg=aggTokps(n,m,q,g,ctx,B,kv8);
+    const res={n,B,agg,queue:users>mb};
+    if(!fallback) fallback=res;
+    if(agg>=req) return res;
+  }
+  return fallback;
+};
+/* frontera self-hosted: el mejor $/1M entre todas las GPUs para un tráfico T (cubriendo demanda) */
+const frontier1m=(inp,m,q,kv8,T)=>{
+  const req=T/S_PER_MONTH*inp.peak;
+  let best=Infinity;
+  for(const g of GPUS){
+    const s=sizeFor(m,q,g,inp.ctx,inp.users,kv8,req);
+    if(!s) continue;
+    if(s.agg<req-1e-9) continue;          /* no cubre: no cuenta para la frontera */
+    const p=s.n*inp.gpuCost[g.id]*730*1e6/T;
+    if(p<best) best=p;
+  }
+  return best===Infinity?null:best;
+};
+const defInp=()=>({
+  model:'l31-8b',quant:'fp16',ctx:8192,users:10,kv8:false,
+  traffic:1e8,inR:0.7,peak:2.0,api:'4omini',apiPin:0.15,apiOut:0.60,
+  rev:8,shock:0,avail:0.999,
+  gpuCost:{l4:0.75,a10g:1.0,'4090':0.60,a100:1.90,h100:2.60}
+});
+
+function computeAll(inp){
+  const m=byId(MODELS,inp.model), q=byId(QUANTS,inp.quant), kv8=!!inp.kv8;
+  const kvt=kvTokGB(m,q,kv8), W=wGB(m,q), kvSeq=kvt*inp.ctx;
+  const req=inp.traffic/S_PER_MONTH*inp.peak;
+  const configs=GPUS.map(g=>{
+    const s=sizeFor(m,q,g,inp.ctx,inp.users,kv8,req);
+    if(!s) return {g,n:0,B:0,agg:0,queue:false,mo:0,served:0,covered:false,fits:false,per1m:Infinity};
+    const mo=s.n*inp.gpuCost[g.id]*730;
+    const served=Math.min(inp.traffic,s.agg*S_PER_MONTH);
+    const covered=s.agg>=req-1e-9;
+    return {g,n:s.n,B:s.B,agg:s.agg,queue:s.queue,mo,served,covered,fits:true,
+            per1m:served>0?mo*1e6/served:Infinity};
+  });
+  const fitsArr=configs.filter(c=>c.fits), covArr=fitsArr.filter(c=>c.covered);
+  const pool=covArr.length?covArr:fitsArr;
+  const best=pool.slice().sort((a,b)=>a.per1m-b.per1m)[0];
+  const apiBlend=inp.inR*inp.apiPin+(1-inp.inR)*inp.apiOut;
+  const api1m=apiBlend*(1-inp.shock/100);
+  const apiMo=inp.traffic/1e6*api1m;
+  const ownMo=best.n*(best.g.capex/24+best.g.watt/1000*730*0.12);
+  const own1m=best.served>0?ownMo*1e6/best.served:Infinity;
+  const marg=p=>inp.rev>0?Math.max(-9.99,1-p/inp.rev):0;
+  let beRaw=null, beT=null; const pts=[];
+  for(let i=0;i<=34;i++){
+    const T=1e6*Math.pow(10,i/8);
+    const f=frontier1m(inp,m,q,kv8,T);
+    pts.push({T,f});
+    if(beRaw===null&&f!==null&&f<=apiBlend) beRaw=T;
+    if(beT===null&&f!==null&&f<=api1m) beT=T;
+  }
+  const downHrs=730*(1-inp.avail);
+  const lost=inp.traffic/1e6*inp.rev*(1-inp.avail);
+  return {m,q,kvt,W,kvSeq,req,configs,best,apiBlend,api1m,apiMo,ownMo,own1m,
+          mg:{api:marg(api1m),gpu:marg(best.per1m),own:marg(own1m)},
+          be:{T:beT,raw:beRaw,pts},
+          risk:{downHrs,lost,penalty:0.1*lost,total:lost*1.1},
+          vramNeed:W+kvSeq};
+}
+function scenId(inp){
+  let h=0x811c9dc5; const s=JSON.stringify(inp);
+  for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}
+  return 'IUE-'+h.toString(36).toUpperCase().slice(0,6);
+}
+/* ============ puente SWARM-OPS → IUE-Sim (v1.1) ============
+   Convierte el post-mortem JSON exportado por SWARM-OPS v3.5-alpha
+   en dinero con el precio de venta de la calculadora:
+     coste = (sla.last.tokensLost + sla.last.reprefTokens) × rev $/1M ÷ 1e6
+   Pura, sin DOM — t7 la ejercita con un JSON falso. */
+const churnFromPM=(pm,rev)=>{
+  const bad=r=>({ok:false,cost:0,tokensLost:0,reprefTokens:0,reason:r});
+  if(!pm||typeof pm!=='object') return bad('no es un objeto JSON');
+  const last=pm.sla&&pm.sla.last;
+  if(!last||typeof last!=='object') return bad('falta sla.last (¿corrida sin SLA?)');
+  const tl=Number(last.tokensLost), rp=Number(last.reprefTokens);
+  if(!isFinite(tl)||!isFinite(rp)||tl<0||rp<0) return bad('tokensLost/reprefTokens no son números ≥ 0');
+  return {ok:true,cost:(tl+rp)*(Number(rev)||0)/1e6,tokensLost:tl,reprefTokens:rp};
+};
+
+function runSelfTests(){
+  const out=[]; const push=(id,ok,detail)=>out.push({id,ok,detail});
+  const m8=byId(MODELS,'l31-8b'), q16=byId(QUANTS,'fp16');
+  const bytes=kvTokGB(m8,q16,false)*GB1;
+  push('t1',Math.abs(bytes-131072)<1,
+    'Llama-3.1-8B fp16: '+bytes.toFixed(0)+' B/tok · seq 8K = '+(kvTokGB(m8,q16,false)*8192).toFixed(3)+' GB');
+  const m70=byId(MODELS,'l31-70b');
+  const w1=wGB(m70,byId(QUANTS,'fp16')),w2=wGB(m70,byId(QUANTS,'int8')),w3=wGB(m70,byId(QUANTS,'nf4'));
+  push('t2',Math.abs(w1-141.2)<0.2&&Math.abs(w2-74.8)<0.2&&Math.abs(w3-38.9)<0.2,
+    '70B → fp16 '+w1.toFixed(1)+' · int8 '+w2.toFixed(1)+' · nf4 '+w3.toFixed(1)+' GB');
+  const tp=aggTokps(2,m70,byId(QUANTS,'fp16'),byId(GPUS,'h100'),8192,1,false);
+  push('t3',tp>23&&tp<33,
+    '2×H100 · 70B fp16 · 8K · B=1 → '+tp.toFixed(1)+' tok/s (rango canónico 24–32)');
+  const gA=byId(GPUS,'a100'), g4=byId(GPUS,'4090');
+  const n1=minGpus(m70,byId(QUANTS,'fp16'),gA), n2=minGpus(m70,byId(QUANTS,'nf4'),gA), n3=minGpus(m70,byId(QUANTS,'fp16'),g4);
+  push('t4',n1===2&&n2===1&&n3===7,
+    '70B fp16 → '+n1+'×A100-80 · 70B NF4 → '+n2+'×A100-80 · 70B fp16 → '+n3+'×4090');
+  const inpA=defInp(); inpA.api='gpt4o'; inpA.apiPin=2.5; inpA.apiOut=10;
+  const inpB=Object.assign({},inpA); inpB.gpuCost=Object.assign({},inpA.gpuCost); inpB.gpuCost['4090']=0.30;
+  const beA=computeAll(inpA).be.T, beB=computeAll(inpB).be.T;
+  push('t5',beA!==null&&beB!==null&&beB<=beA,
+    'GPU a mitad de precio ⇒ break-even '+(beB/1e6).toFixed(0)+'M ≤ '+(beA/1e6).toFixed(0)+'M tok/mes');
+  const inp0=defInp(), c=computeAll(inp0);
+  const expMo=c.best.n*inp0.gpuCost[c.best.g.id]*730;
+  push('t6',Math.abs(c.best.mo-expMo)<1e-6&&(!c.best.covered||Math.abs(c.best.served-inp0.traffic)<1),
+    '$'+c.best.mo.toFixed(2)+'/mes = '+c.best.n+'×$'+inp0.gpuCost[c.best.g.id]+'×730 · cubre demanda: '+c.best.covered);
+  /* t7 — puente SWARM-OPS: un post-mortem (falso) suma los costes correctamente */
+  const pmFake={tool:'SWARM-OPS',version:'v3.5-alpha',scenarioId:'KC1-cascade',rootCause:'cascade',
+    meta:{seedHex:'0x5EED0000',mode:'wan'},
+    sla:{aggregate:{runs:3},last:{runId:3,ok:false,tokens:900,reprefTokens:800,tokensLost:4200}},events:[]};
+  const imp=churnFromPM(pmFake,8), impBad=churnFromPM({meta:{},sla:{last:null}},8);
+  push('t7',imp.ok&&!impBad.ok&&imp.tokensLost===4200&&imp.reprefTokens===800
+        &&Math.abs(imp.cost-(4200+800)*8/1e6)<1e-12,
+    '(4200 perdidos + 800 re-prefill) tok × $8/1M = $'+imp.cost.toFixed(4)
+    +' · sla.last:null ⇒ rechazado ('+(impBad.ok?'ERROR':'ok')+')');
+  return out;
+}
+
+/* ============ i18n ES/EN — diccionario único de toda la interfaz ============ */
+const i18n={
+es:{
+ docTitle:'IUE-Sim · Unit Economics de Inferencia · API vs Self-hosted · puente SWARM-OPS',
+ h1:'🧮 IUE-Sim <span class="ver">inference unit economics · free tier · v3.6 · puente SWARM-OPS + Laya AI</span>',
+ sub:'Antes de escalar tu startup de IA, simula tu factura de inferencia: API vs GPU en la nube vs hardware propio. Física real de VRAM (pesos + KV cache GQA), throughput memory-bound con batching, sizing por tráfico con factor pico, break-even y margen bruto — con 7 auto-tests (t7 = puente SWARM-OPS), importación de post-mortems custodiada por Laya AI y precios editables.',
+ b1:'núcleo puro · 7 auto-tests',b2:'precios editables · snapshot 2026',b3:'escenarios por URL · export MD/CSV',b4:'puente SWARM-OPS · post-mortem custodiado por Laya AI',
+ lVram:'VRAM modelo+KV',lGpu:'Config mínima',lTpsU:'tok/s por usuario',lTpsA:'tok/s agregados',
+ lMo:'Self-hosted $/mes',lApi:'API $/mes',lBe:'Break-even',lMargin:'Mejor margen bruto',
+ sizingTitle:'📐 Sizing — ¿qué hardware necesito?',scenLbl:'escenario',
+ lblModel:'Modelo',lblQuant:'Cuantización',lblCtx:'Contexto por usuario',
+ lblUsers:'Usuarios concurrentes',kv8:'KV cache en FP8 (mitad de KV)',
+ legW:'pesos',legK:'KV cache',legO:'overhead CUDA',legF:'libre',
+ cfgGpu:'GPU',cfgAgg:'tok/s',cfgMo:'$/mes',cfg1m:'$/1M',
+ qBest:'MÁS BARATA',qQueue:'COLA',qNoCov:'NO CUBRE',
+ gapWarnT:'⚠️ Ninguna flota ≤16 GPUs cubre el pico de {0} tok/s: sirviendo {1}/mes ({2}% de la demanda). Sube tokens/mes y mira el break-even, no esta columna.',
+ hintSizing:'💡 La barra muestra la VRAM de UNA réplica del modelo (pesos + KV cache del contexto + overhead). Cada fila es una GPU candidata con la flota mínima que cubre tus usuarios Y tu tráfico pico: la verde es la más barata por token.',
+ econTitle:'💸 Tráfico y economía',
+ lblTraffic:'Tokens / mes (demanda)',lblIn:'% tokens de entrada (prompt)',lblPeak:'Factor pico',
+ lblApi:'Proveedor API (comparable)',apiPin:'$ / 1M entrada:',apiPout:'$ / 1M salida:',
+ lblRev:'Tu precio (ingreso $ / 1M tokens)',
+ gpuPricesTitle:'$/hr por GPU (nube)',gpuPricesHint:'Precios on-demand de referencia (Lambda/RunPod/Vast 2026). Edítalos con tu proveedor real: todo el sizing se recalcula al instante.',
+ shareTitle:'🔗 Escenario',btnShare:'🔗 Copiar enlace del escenario',btnMd:'⬇ Informe .md',btnCsv:'⬇ Datos .csv',
+ shareOk:'Enlace copiado al portapapeles ✓',shareMan:'Copia esta URL para compartir el escenario exacto:',
+ compTitle:'⚖️ Unit economics — tres formas de servir tus tokens',
+ cmpApi:'☁️ API gestionada',cmpGpu:'🖥️ GPU en la nube (self-hosted)',cmpOwn:'🏠 Hardware propio (CapEx)',
+ cbBest:'MÁS BARATO /1M',cmpMo:'$ / mes a tu tráfico:',cmpMargin:'Margen bruto:',
+ apiNote:'Elasticidad infinita, cero ops, TTFT bajo — pero tus datos salen a terceros y el precio no lo controlas.',
+ gpuNote:'Pagas por hora aunque no haya tráfico: el sizing es por PICO. VPC privada, modelos abiertos, control del stack.',
+ ownNote:'CapEx amortizado a 24 meses + energía ($0.12/kWh). Soberanía 100%: tus datos nunca salen del router.',
+ chartTitle:'📉 Break-even — $/1M tokens vs tráfico mensual',
+ legApi:'API ($/1M plana)',legSelf:'Self-hosted nube (escalera: flota por pasos)',
+ legBe:'cruce = break-even',legNow:'tu tráfico hoy',
+ beNone:'sin cruce ≤ 18B tok/mes',beVal:'≈ {0} tok/mes',
+ sensTitle:'🌡️ Sensibilidad y riesgo',lblShock:'Shock de precios API (bajada)',lblAvail:'Disponibilidad comprometida (SLA)',
+ sensT:'Break-even sin shock: {0} · con shock −{1}%: {2} → {3}',
+ sensNear:'el cruce SE ALEJA (la GPU necesita más escala)',sensFar:'el cruce SE ACERCA (la GPU alcanza antes)',
+ riskT:'SLA {0} ⇒ {1} h/mes fuera ⇒ ingreso perdido {2} + penalización 10% ⇒ riesgo {3}/mes.',
+ btnPmIn:'📂 Importar Post-Mortem (JSON)',
+ churnHead:'Coste Real del Churn',
+ churnIdle:'Sin post-mortem importado — exporta el .json desde SWARM-OPS v3.5 (⬇ Post-mortem .json) y cárgalo aquí: (tokensLost + reprefTokens) × tu precio $/1M.',
+ churnErr:'✗ Post-mortem inválido: {0}',
+ churnNone:'sla.last está vacío: el post-mortem no registró ninguna corrida de SLA aún.',
+ churnMeta:'{0} · causa raíz: {1} · seed {2} · modo {3}',
+ churnTok:'tokens perdidos: <b>{0}</b> · re-prefill: <b>{1}</b> ⇒ <b>{2}</b> tok afectados',
+ churnCost:'Coste Real del Churn = ({0} + {1}) tok × {2}/1M = <b>{3}</b>',
+ churnPrice:'(tu precio)',
+ churnR1:'no es un objeto JSON',churnR2:'falta sla.last (¿corrida sin SLA?)',churnR3:'tokensLost/reprefTokens no son números ≥ 0',
+ layaCheck:'🛰️ Consultando a Laya AI — primitiva noul: validando estructura del post-mortem…',
+ layaClassify:'🛰️ Estructura válida — Laya AI clasifica la causa raíz (primitiva choice)…',
+ layaReject:'✗ Laya AI rechazó el archivo: estructura corrupta',
+ layaCause:'🛰️ Laya detecta un fallo de tipo {0}',
+ layaCauseNone:'Laya AI respondió, pero no clasificó la causa raíz (dijo: «{0}») — importando con lógica estándar…',
+ layaDown:'⚠️ Laya AI no está detectado. Enciende el servidor local. Importando usando lógica estándar...',
+ layaUnclear:'⚠️ Laya AI respondió algo no interpretable ({0}) — importando usando lógica estándar...',
+ layaImportErr:'error importando: {0}',
+ hintRisk:'🪙 La v4.0 (Tokenomics) parte de aquí: cada causa de fallo del simulador SWARM-OPS (cascade, thermal, partition…) es un riesgo con prima — antes de acuñar un token, estresa la economía.',
+ testsTitle:'🧪 Auto-tests del núcleo (puro, sin DOM)',btnTests:'▶ Ejecutar 7 tests',
+ testsIdle:'Sin ejecutar todavía — el núcleo es el mismo que corre en cada render.',
+ testsOk:'✓ Self-tests OK ({0}/7) — invariantes verificados',
+ testsFail:'✗ Self-tests FALLANDO ({0}/7) — revisa los detalles',
+ t1n:'KV cache canónica',t2n:'Pesos por cuantización',t3n:'Decode memory-bound',
+ t4n:'Sizing no viola VRAM',t5n:'Break-even monotónico',t6n:'Contabilidad de costes',t7n:'Puente SWARM-OPS (post-mortem falso)',
+ auditTitle:'🔬 Nota para la auditoría — qué calcula de verdad IUE-Sim',
+ yesHead:'Calculado con fórmulas de primer principio:',
+ a1:'<b>KV cache canónica:</b> 2 × capas × cabezas-KV (GQA) × dim_cabeza × bytes/tipo — Llama-3.1-8B fp16 = 131,072 B/token ⇒ ~1.07 GB por secuencia de 8K.',
+ a2:'<b>Pesos por cuantización:</b> params × bytes/param (FP16 2.0 · INT8 1.06 con escalas · NF4 0.55) — 70B: 141.2 / 74.8 / 38.8 GB.',
+ a3:'<b>Decode memory-bound con batching:</b> tok/s = BW_efectiva × B / (pesos + B × KV del contexto), con techo de cómputo 2 × params_activos × util 0.35 — el batching amortiza pesos pero cada secuencia paga SU KV completa.',
+ a4:'<b>Tensor parallel:</b> n GPUs suman ancho de banda con eficiencia 0.85; overhead CUDA 1.5 GB/GPU descontado de la VRAM usable.',
+ a5:'<b>Sizing honesto:</b> flota mínima que cabe en VRAM (pesos + KV + overhead) Y cubre usuarios concurrentes Y tráfico pico (demanda media × factor pico). Usuarios &gt; slots ⇒ cola visible.',
+ a6:'<b>Costes auditables:</b> nube = n × $/hr × 730; propio = CapEx/24 + watts × 730 × $0.12/kWh; API = mezcla entrada/salida editable.',
+ a7:'<b>Break-even por barrido:</b> la escalera de coste self-hosted (flota por pasos) se barre contra el precio plano de API hasta el cruce — no hay una fórmula mágica.',
+ a8:'<b>Puente SWARM-OPS (v3.6, con Laya AI):</b> «📂 Importar Post-Mortem (JSON)» envía el post-mortem v3.5-alpha a Laya AI (127.0.0.1:8787/ask): noul valida sla.last.tokensLost y sla.last.reprefTokens; choice clasifica la causa raíz. Sin Laya, importa igual con la lógica estándar: Coste Real del Churn = (perdidos + re-prefill) × tu precio $/1M ÷ 1e6. churnFromPM es pura, sin DOM ni red; t7 la verifica.',
+ noHead:'Lo que NO modela (honestidad ante todo):',
+ n1:'Benchmarks reales: son fórmulas first-principles — espera ±30–50% vs vLLM/TensorRT-LLM en producción.',
+ n2:'PagedAttention ni fragmentación de memoria: la VRAM se contabiliza ideal.',
+ n3:'TTFT ni coste del prefill: solo decode; el primer token puede tardar mucho más con contextos largos.',
+ n4:'Red multi-nodo (IB/NVLink entre cajas) ni pipeline parallel: TP idealizado.',
+ n5:'Speculative decoding ni continuous batching dinámico: batch fijo por snapshot.',
+ n6:'La demanda es un factor escalar, no una distribución horaria; los precios son snapshot 2026 editables, no cotizaciones en vivo.',
+ n7:'El coste del churn usa tu precio de VENTA como proxy del dinero perdido: solo cubre sla.last (última corrida), no el coste marginal de cómputo ni el agregado multi-corrida (sla.aggregate).',
+ footer:'IUE-Sim v3.6 · la capa gratuita del stack — cada número es auditable y cada escenario es compartible · puente: importa el post-mortem de SWARM-OPS v3.5 con Laya AI de guardián',
+ ladder:'🕸️ SWARM-OPS (física operacional) → 🧮 IUE-Sim (unit economics · puente post-mortem) → 🪙 v4.0 Tokenomics (¿sobrevive tu token?) → 📡 monitoreo en vivo (roadmap)',
+ /* dinámicos */
+ uUsers:'usuarios',uQueueNote:'cola: {0} usuarios sobre {1} slots',
+ mdTitle:'Informe de escenario IUE-Sim',mdInputs:'Entradas',mdResults:'Resultados',
+ mdMode:'modo',mdNever:'no alcanza break-even ≤ 18B tok/mes',
+ fmtMon:{M:'M',B:'B'}
+},
+en:{
+ docTitle:'IUE-Sim · Inference Unit Economics · API vs Self-hosted · SWARM-OPS bridge',
+ h1:'🧮 IUE-Sim <span class="ver">inference unit economics · free tier · v3.6 · SWARM-OPS bridge + Laya AI</span>',
+ sub:'Before scaling your AI startup, simulate your inference bill: managed API vs cloud GPU vs owned hardware. Real VRAM physics (weights + GQA KV cache), memory-bound batching throughput, peak-based fleet sizing, break-even and gross margin — with 7 self-tests (t7 = SWARM-OPS bridge), Laya AI-guarded post-mortem import and editable prices.',
+ b1:'pure core · 7 self-tests',b2:'editable prices · 2026 snapshot',b3:'shareable scenarios · MD/CSV export',b4:'SWARM-OPS bridge · Laya-guarded post-mortem import',
+ lVram:'Model+KV VRAM',lGpu:'Minimum config',lTpsU:'tok/s per user',lTpsA:'aggregate tok/s',
+ lMo:'Self-hosted $/mo',lApi:'API $/mo',lBe:'Break-even',lMargin:'Best gross margin',
+ sizingTitle:'📐 Sizing — what hardware do I need?',scenLbl:'scenario',
+ lblModel:'Model',lblQuant:'Quantization',lblCtx:'Context per user',
+ lblUsers:'Concurrent users',kv8:'FP8 KV cache (half the KV)',
+ legW:'weights',legK:'KV cache',legO:'CUDA overhead',legF:'free',
+ cfgGpu:'GPU',cfgAgg:'tok/s',cfgMo:'$/mo',cfg1m:'$/1M',
+ qBest:'CHEAPEST',qQueue:'QUEUE',qNoCov:'UNDERSIZED',
+ gapWarnT:'⚠️ No fleet ≤16 GPUs covers the {0} tok/s peak: serving {1}/mo ({2}% of demand). Raise tokens/mo and watch the break-even, not this column.',
+ hintSizing:'💡 The bar shows the VRAM of ONE model replica (weights + context KV cache + overhead). Each row is a candidate GPU with the smallest fleet covering your users AND your peak traffic: the green one is the cheapest per token.',
+ econTitle:'💸 Traffic & economics',
+ lblTraffic:'Tokens / month (demand)',lblIn:'% input tokens (prompt)',lblPeak:'Peak factor',
+ lblApi:'Comparable API provider',apiPin:'$ / 1M input:',apiPout:'$ / 1M output:',
+ lblRev:'Your price (revenue $ / 1M tokens)',
+ gpuPricesTitle:'$/hr per GPU (cloud)',gpuPricesHint:'Reference on-demand prices (Lambda/RunPod/Vast 2026). Edit them with your real provider: the whole sizing recalculates instantly.',
+ shareTitle:'🔗 Scenario',btnShare:'🔗 Copy scenario link',btnMd:'⬇ .md report',btnCsv:'⬇ .csv data',
+ shareOk:'Link copied to clipboard ✓',shareMan:'Copy this URL to share the exact scenario:',
+ compTitle:'⚖️ Unit economics — three ways to serve your tokens',
+ cmpApi:'☁️ Managed API',cmpGpu:'🖥️ Cloud GPU (self-hosted)',cmpOwn:'🏠 Owned hardware (CapEx)',
+ cbBest:'CHEAPEST /1M',cmpMo:'$ / mo at your traffic:',cmpMargin:'Gross margin:',
+ apiNote:'Infinite elasticity, zero ops, low TTFT — but your data leaves to third parties and you don\'t control the price.',
+ gpuNote:'You pay per hour with or without traffic: sizing is PEAK-based. Private VPC, open models, full stack control.',
+ ownNote:'CapEx amortized over 24 months + power ($0.12/kWh). 100% sovereignty: your data never leaves your router.',
+ chartTitle:'📉 Break-even — $/1M tokens vs monthly traffic',
+ legApi:'API (flat $/1M)',legSelf:'Cloud self-hosted (staircase: stepped fleet)',
+ legBe:'crossing = break-even',legNow:'your traffic today',
+ beNone:'no crossing ≤ 18B tok/mo',beVal:'≈ {0} tok/mo',
+ sensTitle:'🌡️ Sensitivity & risk',lblShock:'API price shock (drop)',lblAvail:'Committed availability (SLA)',
+ sensT:'Break-even without shock: {0} · with −{1}% shock: {2} → {3}',
+ sensNear:'the crossing moves AWAY (GPU needs more scale)',sensFar:'the crossing moves CLOSER (GPU gets there sooner)',
+ riskT:'SLA {0} ⇒ {1} h/mo down ⇒ lost revenue {2} + 10% penalty ⇒ risk {3}/mo.',
+ btnPmIn:'📂 Import Post-Mortem (JSON)',
+ churnHead:'Real Cost of Churn',
+ churnIdle:'No post-mortem imported yet — export the .json from SWARM-OPS v3.5 (⬇ Post-mortem .json) and load it here: (tokensLost + reprefTokens) × your $/1M price.',
+ churnErr:'✗ Invalid post-mortem: {0}',
+ churnNone:'sla.last is empty: the post-mortem has not recorded any SLA run yet.',
+ churnMeta:'{0} · root cause: {1} · seed {2} · mode {3}',
+ churnTok:'tokens lost: <b>{0}</b> · re-prefill: <b>{1}</b> ⇒ <b>{2}</b> tokens affected',
+ churnCost:'Real Cost of Churn = ({0} + {1}) tok × {2}/1M = <b>{3}</b>',
+ churnPrice:'(your price)',
+ churnR1:'not a JSON object',churnR2:'missing sla.last (SLA run not recorded?)',churnR3:'tokensLost/reprefTokens are not numbers ≥ 0',
+ layaCheck:'🛰️ Asking Laya AI — noul primitive: validating post-mortem structure…',
+ layaClassify:'🛰️ Structure valid — Laya AI classifies the root cause (choice primitive)…',
+ layaReject:'✗ Laya AI rejected the file: corrupt structure',
+ layaCause:'🛰️ Laya detects a failure of type {0}',
+ layaCauseNone:'Laya AI answered but could not classify the root cause (it said: "{0}") — importing with standard logic…',
+ layaDown:'⚠️ Laya AI not detected. Start the local server. Importing with standard logic...',
+ layaUnclear:'⚠️ Laya AI gave an uninterpretable answer ({0}) — importing with standard logic...',
+ layaImportErr:'import error: {0}',
+ hintRisk:'🪙 v4.0 (Tokenomics) starts here: every failure cause in the SWARM-OPS simulator (cascade, thermal, partition…) is a priced risk — stress the economics before minting a token.',
+ testsTitle:'🧪 Core self-tests (pure, DOM-free)',btnTests:'▶ Run 7 tests',
+ testsIdle:'Not run yet — this core is the same one that runs on every render.',
+ testsOk:'✓ Self-tests OK ({0}/7) — invariants verified',
+ testsFail:'✗ Self-tests FAILING ({0}/7) — check the details',
+ t1n:'Canonical KV cache',t2n:'Weights per quantization',t3n:'Memory-bound decode',
+ t4n:'Sizing never violates VRAM',t5n:'Break-even monotonicity',t6n:'Cost accounting',t7n:'SWARM-OPS bridge (fake post-mortem)',
+ auditTitle:'🔬 Auditor\'s note — what IUE-Sim really computes',
+ yesHead:'Computed with first-principles formulas:',
+ a1:'<b>Canonical KV cache:</b> 2 × layers × KV-heads (GQA) × head_dim × dtype bytes — Llama-3.1-8B fp16 = 131,072 B/token ⇒ ~1.07 GB per 8K sequence.',
+ a2:'<b>Weights per quantization:</b> params × bytes/param (FP16 2.0 · INT8 1.06 with scales · NF4 0.55) — 70B: 141.2 / 74.8 / 38.8 GB.',
+ a3:'<b>Memory-bound decode with batching:</b> tok/s = eff BW × B / (weights + B × context KV), capped by compute 2 × active params × 0.35 util — batching amortizes weights but every sequence pays its OWN full KV.',
+ a4:'<b>Tensor parallel:</b> n GPUs add bandwidth at 0.85 efficiency; 1.5 GB/GPU CUDA overhead subtracted from usable VRAM.',
+ a5:'<b>Honest sizing:</b> smallest fleet that fits in VRAM (weights + KV + overhead) AND covers concurrent users AND peak traffic (avg demand × peak factor). Users &gt; slots ⇒ visible queue.',
+ a6:'<b>Auditable costs:</b> cloud = n × $/hr × 730; owned = CapEx/24 + watts × 730 × $0.12/kWh; API = editable input/output blend.',
+ a7:'<b>Break-even by sweep:</b> the self-hosted cost staircase (stepped fleet) is swept against the flat API price until they cross — no magic closed form.',
+ a8:'<b>SWARM-OPS bridge (v3.6, with Laya AI):</b> «📂 Import Post-Mortem (JSON)» sends the v3.5-alpha post-mortem to Laya AI (127.0.0.1:8787/ask): noul validates sla.last.tokensLost and sla.last.reprefTokens; choice classifies the root cause. Without Laya, it still imports via the standard logic: Real Cost of Churn = (lost + re-prefill) × your $/1M price ÷ 1e6. churnFromPM is pure, DOM-free and network-free; t7 verifies it.',
+ noHead:'What it does NOT model (honesty first):',
+ n1:'Real benchmarks: these are first-principles formulas — expect ±30–50% vs production vLLM/TensorRT-LLM.',
+ n2:'PagedAttention or memory fragmentation: VRAM is accounted ideally.',
+ n3:'TTFT or prefill cost: decode only; the first token can take far longer with long contexts.',
+ n4:'Multi-node networking (IB/NVLink across boxes) or pipeline parallel: idealized TP.',
+ n5:'Speculative decoding or dynamic continuous batching: fixed batch per snapshot.',
+ n6:'Demand is a scalar factor, not an hourly distribution; prices are an editable 2026 snapshot, not live quotes.',
+ n7:'The churn cost uses your SELLING price as a proxy for lost money: it only covers sla.last (the latest run), not marginal compute cost nor the multi-run aggregate (sla.aggregate).',
+ footer:'IUE-Sim v3.6 · the free tier of the stack — every number is auditable and every scenario is shareable · bridge: import the SWARM-OPS v3.5 post-mortem with Laya AI as gatekeeper',
+ ladder:'🕸️ SWARM-OPS (operational physics) → 🧮 IUE-Sim (unit economics · post-mortem bridge) → 🪙 v4.0 Tokenomics (will your token survive?) → 📡 live monitoring (roadmap)',
+ /* dinámicos */
+ uUsers:'users',uQueueNote:'queue: {0} users on {1} slots',
+ mdTitle:'IUE-Sim scenario report',mdInputs:'Inputs',mdResults:'Results',
+ mdMode:'mode',mdNever:'no break-even ≤ 18B tok/mo',
+ fmtMon:{M:'M',B:'B'}
+}};
+
+/* ============ UI (piel): wiring, render, export ============ */
+let lang='es';
+try{ if(localStorage.getItem('iue-lang')==='en') lang='en'; }catch(e){}
+const T=(k,...a)=>{
+  let s=(i18n[lang]&&i18n[lang][k]!==undefined)?i18n[lang][k]:i18n.es[k];
+  if(s===undefined) return k;
+  for(let i=0;i<a.length;i++) s=s.split('{'+i+'}').join(String(a[i]));
+  return s;
+};
+const $=id=>document.getElementById(id);
+const fmtTok=x=> x>=1e9 ? (x/1e9).toFixed(x>=1e10?0:1)+' '+i18n[lang].fmtMon.B
+            : x>=1e6 ? (x/1e6).toFixed(x>=1e8?0:1)+' '+i18n[lang].fmtMon.M
+            : x>=1e3 ? (x/1e3).toFixed(0)+' K' : String(Math.round(x));
+const fmtUSD=x=> !isFinite(x) ? '—' : x>=100 ? '$'+x.toFixed(0) : x>=1 ? '$'+x.toFixed(2) : '$'+x.toFixed(3);
+const fmtGB=x=>(x>=100?x.toFixed(0):x.toFixed(1))+' GB';
+const fmtAgg=x=> x>=1000 ? (x/1000).toFixed(1)+'k' : x.toFixed(0);
+const fmtPct=x=>(x*100).toFixed(1)+'%';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+/* ---------- puente SWARM-OPS (v1.1 → v3.6): post-mortem importado → dinero ---------- */
+let pmImport=null,pmImportName='';
+/* los reasons técnicos de churnFromPM se traducen aquí si existe clave i18n */
+const RKEY={'no es un objeto JSON':'churnR1','falta sla.last (¿corrida sin SLA?)':'churnR2','tokensLost/reprefTokens no son números ≥ 0':'churnR3'};
+const rtxt=r=>{ const k=RKEY[r]; return k?T(k):r; };
+function renderChurn(inp){
+  const el=$('churnOut'); if(!el) return;
+  const head='<b>'+T('churnHead')+'</b><br>';
+  if(!pmImport){ el.innerHTML=head+T('churnIdle'); return; }
+  const imp=churnFromPM(pmImport,inp.rev);
+  if(!imp.ok){ el.innerHTML=head+'<span style="color:var(--red)">'+esc(T('churnErr',rtxt(imp.reason||'?')))+'</span>'; return; }
+  if(!imp.tokensLost&&!imp.reprefTokens){ el.innerHTML=head+T('churnNone'); return; }
+  const meta=pmImport.meta||{};
+  const nf=x=>x.toLocaleString('en-US');
+  el.innerHTML=head
+    +'<span style="color:var(--dim)">'+esc(T('churnMeta',pmImportName||meta.scenarioId||'post-mortem',String(pmImport.rootCause||'—'),String(meta.seedHex||meta.seed||'—'),String(meta.mode||'—')))+'</span><br>'
+    +T('churnTok',nf(imp.tokensLost),nf(imp.reprefTokens),nf(imp.tokensLost+imp.reprefTokens))+'<br>'
+    +T('churnCost',nf(imp.tokensLost),nf(imp.reprefTokens),fmtUSD(inp.rev)+' <span style="color:var(--dim)">'+T('churnPrice')+'</span>','<span style="color:var(--orange);font-size:15.5px">$'+(imp.cost>=1?imp.cost.toFixed(2):imp.cost.toFixed(4))+'</span>');
+}
+
+/* ---------- puente Laya AI (v3.6): guardián de la importación ----------
+   Laya corre en localhost:8787 (POST /ask). Dos primitivas:
+   · noul   → valida que el JSON traiga sla.last.tokensLost y sla.last.reprefTokens
+   · choice → lee la causa raíz (rootCause) y la clasifica en la taxonomía SWARM-OPS
+   Contrato tolerante: se envía {primitive,args,prompt}; la respuesta se acepta como
+   JSON o texto plano y se buscan campos result/valid/ok/answer/output/response/…
+   Si Laya no está encendido (fetch falla, HTTP ≠ 200 o timeout) → advertencia y la
+   importación continúa con la lógica estándar de la v1.1 (churnFromPM, sin red). */
+const LAYA_URL='http://127.0.0.1:8787/ask', LAYA_TIMEOUT=10000;
+const CAUSES=['manual','cascade','byzantine','thermal','partition','vram-corrupt'];
+async function askLaya(payload){
+  const ctrl=new AbortController();
+  const tid=setTimeout(()=>ctrl.abort(),LAYA_TIMEOUT);
+  try{
+    const r=await fetch(LAYA_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload),signal:ctrl.signal});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const txt=await r.text();
+    try{ return JSON.parse(txt); }catch(e){ return txt; }
+  } finally{ clearTimeout(tid); }
+}
+const layaText=j=>{
+  if(j===null||j===undefined) return '';
+  if(typeof j==='boolean') return j?'true':'false';
+  if(typeof j!=='object') return String(j);
+  const keys=['result','valid','ok','answer','output','response','data','value','reply','text','message'];
+  for(const k of keys){
+    if(j[k]!==undefined&&j[k]!==null) return typeof j[k]==='object'?JSON.stringify(j[k]):String(j[k]);
+  }
+  return JSON.stringify(j);
+};
+const trunc=(s,n)=>s.length>n?s.slice(0,n)+'…':s;
+/* veredicto del noul: 'yes' | 'no' | 'unclear' — conservador: solo un 'no' claro rechaza */
+function layaVerdict(j){
+  const t=String(layaText(j)).trim().toLowerCase();
+  if(!t) return 'unclear';
+  const noPat=/(^|[^a-z])false([^a-z]|$)|^0$|\binvalid|\bcorrupt|\breject|\bfalta|\bmissing/;
+  const yesPat=/(^|[^a-z])true([^a-z]|$)|^1$|\bvalid|\bok\b|^ok\b|^yes\b|^(sí|si)\b|\bpass\b/;
+  if(noPat.test(t)) return 'no';
+  if(yesPat.test(t)) return 'yes';
+  return 'unclear';
+}
+/* extrae la causa de la respuesta de choice; null si no hay clasificación reconocible */
+function layaCause(j){
+  const t=String(layaText(j)).trim().toLowerCase();
+  const m=t.match(/manual|cascade|byzantine|thermal|partition|vram[-_ ]?corrupt/);
+  if(!m) return null;
+  return m[0].replace(/[-_ ]+/g,'-');
+}
+function layaStatus(msg,kind){
+  const el=$('layaStatus'); if(!el) return;
+  el.style.display='block';
+  el.className='outbox k-'+(kind||'laya');
+  el.textContent=msg;
+}
+const noulPayload=pm=>({
+  primitive:'noul',task:'noul',
+  args:{json:pm,paths:['sla.last.tokensLost','sla.last.reprefTokens']},
+  prompt:'Usa la primitiva noul para validar que este JSON tiene los campos sla.last.tokensLost y sla.last.reprefTokens (números ≥ 0). Responde true si ambos existen, o false si falta alguno. JSON: '+JSON.stringify(pm)
+});
+const choicePayload=pm=>({
+  primitive:'choice',task:'choice',
+  args:{json:pm,field:'rootCause',options:CAUSES},
+  prompt:'Usa la primitiva choice para leer la causa raíz (rootCause) de este post-mortem y clasificarla. Elige UNA opción exacta de: '+CAUSES.join(' | ')+'. JSON: '+JSON.stringify(pm)
+});
+/* ---------- importación v3.6: Laya valida → Laya clasifica → lógica estándar ----------
+   · Laya dice false → “Laya AI rechazó el archivo: estructura corrupta” (no se importa)
+   · Laya no responde (fetch/HTTP/timeout) → advertencia y se importa con lógica estándar
+   · importSeq: si llega otra importación mientras ésta vuela, la antigua deja de pintar */
+let importSeq=0;
+async function importPostMortem(j,fname){
+  const my=++importSeq;
+  const st=(msg,kind)=>{ if(my===importSeq) layaStatus(msg,kind); };
+  /* fase 1 — Laya valida la estructura (primitiva noul) */
+  st(T('layaCheck'),'laya');
+  let v=null;
+  try{ v=await askLaya(noulPayload(j)); }catch(e){ v=null; }
+  if(v===null){ st('⚠️ '+T('layaDown'),'warn'); }
+  else{
+    const vd=layaVerdict(v);
+    if(vd==='no'){ st('✗ '+T('layaReject'),'err'); return; }
+    if(vd==='yes'){
+      /* fase 2 — Laya lee y clasifica la causa raíz (primitiva choice) */
+      st(T('layaClassify'),'laya');
+      let c=null;
+      try{ c=await askLaya(choicePayload(j)); }catch(e){ c=null; }
+      if(c===null){ st('⚠️ '+T('layaDown'),'warn'); }
+      else{
+        const cause=layaCause(c);
+        if(cause) st('🛰️ '+T('layaCause',cause),'ok');
+        else st('⚠️ '+T('layaCauseNone',trunc(layaText(c),60)),'warn');
+      }
+    } else st('⚠️ '+T('layaUnclear',trunc(layaText(v),60)),'warn');
+  }
+  if(my!==importSeq) return;
+  /* lógica estándar (idéntica a la v1.1): validar y monetizar con el slider de ingresos */
+  const chk=churnFromPM(j,readInp().rev);
+  if(!chk.ok){ pmImport=null; pmImportName='';
+    $('churnOut').innerHTML='<b>'+T('churnHead')+'</b><br><span style="color:var(--red)">'+esc(T('churnErr',rtxt(chk.reason||'?')))+'</span>'; return; }
+  pmImport=j; pmImportName=fname; render();
+}
+
+const CTXS=[2048,4096,8192,16384,32768,65536,131072];
+function populate(){
+  $('selModel').innerHTML=MODELS.map(m=>'<option value="'+m.id+'">'+m.name+'</option>').join('');
+  $('selQuant').innerHTML=QUANTS.map(q=>'<option value="'+q.id+'">'+q.name+'</option>').join('');
+  $('selCtx').innerHTML=CTXS.map(c=>'<option value="'+c+'">'+(c>=1024?(c/1024)+'K':c)+'</option>').join('');
+  $('selApi').innerHTML=APIS.map(a=>'<option value="'+a.id+'">'+a.name+'</option>').join('');
+}
+function readInp(){
+  return {
+    model:$('selModel').value, quant:$('selQuant').value, ctx:+$('selCtx').value,
+    users:Math.round(Math.pow(10,$('rngUsers').value/40)), kv8:$('chkKv8').checked,
+    traffic:1e6*Math.pow(10,$('rngTraffic').value/25), inR:$('rngIn').value/100,
+    peak:$('rngPeak').value/10, api:$('selApi').value,
+    apiPin:Math.max(0,+$('apiIn').value||0), apiOut:Math.max(0,+$('apiOut').value||0),
+    rev:Math.max(0,+$('rngRev').value), shock:+$('rngShock').value, avail:+$('selAvail').value,
+    gpuCost:{l4:Math.max(0,+$('gpuL4').value||0),a10g:Math.max(0,+$('gpuA10').value||0),
+             '4090':Math.max(0,+$('gpu4090').value||0),a100:Math.max(0,+$('gpuA100').value||0),
+             h100:Math.max(0,+$('gpuH100').value||0)}
+  };
+}
+function applyInp(p){
+  $('selModel').value=p.model; $('selQuant').value=p.quant;
+  const m=byId(MODELS,p.model);
+  $('selCtx').value=CTXS.includes(+p.ctx)&&+p.ctx<=m.ctxMax?p.ctx:CTXS.filter(c=>c<=m.ctxMax).pop();
+  $('rngUsers').value=Math.max(0,Math.min(80,Math.round(40*Math.log10(Math.max(1,p.users)))));
+  $('chkKv8').checked=!!p.kv8;
+  $('rngTraffic').value=Math.max(0,Math.min(100,Math.round(25*Math.log10(Math.max(1e6,p.traffic)/1e6))));
+  $('rngIn').value=Math.round(p.inR*100); $('rngPeak').value=Math.round(p.peak*10);
+  $('selApi').value=p.api; $('apiIn').value=p.apiPin; $('apiOut').value=p.apiOut;
+  $('rngRev').value=p.rev; $('rngShock').value=p.shock; $('selAvail').value=p.avail;
+  if(p.gpuCost){ $('gpuL4').value=p.gpuCost.l4; $('gpuA10').value=p.gpuCost.a10g;
+    $('gpu4090').value=p.gpuCost['4090']; $('gpuA100').value=p.gpuCost.a100; $('gpuH100').value=p.gpuCost.h100; }
+}
+/* ---------- chart ---------- */
+function renderChart(c,inp){
+  const svg=$('beChart'); const Wd=720,Ht=250,L=54,R=14,Tp=14,Bt=30;
+  const w=Wd-L-R,h=Ht-Tp-Bt;
+  const x=T=>L+(Math.log10(T)-6)/4.25*w;
+  const y=p=>{ if(!isFinite(p)||p<=0) return Ht-Bt;
+    const lo=Math.log10(0.02),hi=Math.log10(2000);
+    return Math.max(Tp,Math.min(Ht-Bt,Tp+(1-(Math.log10(p)-lo)/(hi-lo))*h)); };
+  const s=[];
+  s.push('<rect x="0" y="0" width="'+Wd+'" height="'+Ht+'" fill="#0b1322"/>');
+  [6,7,8,9,10].forEach(e=>{ const gx=x(Math.pow(10,e));
+    s.push('<line x1="'+gx+'" y1="'+Tp+'" x2="'+gx+'" y2="'+(Tp+h)+'" stroke="#1a2740" stroke-width="1"/>');
+    s.push('<text x="'+gx+'" y="'+(Ht-10)+'" fill="#54637a" font-size="10" text-anchor="middle" font-family="monospace">'+fmtTok(Math.pow(10,e))+'</text>'); });
+  [0.1,1,10,100,1000].forEach(p=>{ const gy=y(p);
+    s.push('<line x1="'+L+'" y1="'+gy+'" x2="'+(L+w)+'" y2="'+gy+'" stroke="#1a2740" stroke-width="1"/>');
+    s.push('<text x="'+(L-6)+'" y="'+(gy+3)+'" fill="#54637a" font-size="10" text-anchor="end" font-family="monospace">'+p+'</text>'); });
+  const ay=y(c.api1m);
+  s.push('<line x1="'+L+'" y1="'+ay+'" x2="'+(L+w)+'" y2="'+ay+'" stroke="#ffb454" stroke-width="2"/>');
+  s.push('<text x="'+(L+w-6)+'" y="'+(ay-5)+'" fill="#ffb454" font-size="10" text-anchor="end" font-family="monospace">API '+fmtUSD(c.api1m)+'/1M</text>');
+  let pen=null;
+  c.be.pts.forEach(pt=>{ if(pt.f===null){pen=null;return;}
+    if(pen) s.push('<line x1="'+x(pen.T)+'" y1="'+y(pen.f)+'" x2="'+x(pt.T)+'" y2="'+y(pt.f)+'" stroke="#4cc2ff" stroke-width="2"/>');
+    s.push('<line x1="'+x(pt.T)+'" y1="'+y(pt.f)+'" x2="'+x(pt.T)+'" y2="'+Tp+'" stroke="#1e3a5c" stroke-width="1"/>');
+    pen=pt; });
+  if(c.be.T!==null){
+    const bx=x(c.be.T), by=y(c.api1m);
+    s.push('<circle cx="'+bx+'" cy="'+by+'" r="5" fill="#3fd68f"/>');
+    s.push('<text x="'+bx+'" y="'+(by+18)+'" fill="#3fd68f" font-size="10" text-anchor="middle" font-family="monospace">≈'+fmtTok(c.be.T)+'</text>'); }
+  const nx=x(inp.traffic);
+  s.push('<line x1="'+nx+'" y1="'+Tp+'" x2="'+nx+'" y2="'+(Tp+h)+'" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4 4"/>');
+  if(c.best.covered) s.push('<circle cx="'+nx+'" cy="'+y(c.best.per1m)+'" r="4.5" fill="#a78bfa"/>');
+  svg.innerHTML=s.join('');
+}
+/* ---------- render ---------- */
+function render(){
+  const inp=readInp(), c=computeAll(inp);
+  $('usersVal').textContent=inp.users;
+  $('trafficVal').textContent=fmtTok(inp.traffic);
+  $('inVal').textContent=Math.round(inp.inR*100)+'%';
+  $('peakVal').textContent='×'+inp.peak.toFixed(1);
+  $('revVal').textContent=fmtUSD(inp.rev);
+  $('shockVal').textContent='−'+inp.shock+'%';
+  $('stVram').textContent=fmtGB(c.vramNeed);
+  $('stGpu').textContent=c.best.n+'× '+c.best.g.name;
+  $('stTpsU').textContent=(c.best.agg/c.best.B).toFixed(1);
+  $('stTpsA').textContent=fmtAgg(c.best.agg);
+  $('stMo').textContent=fmtUSD(c.best.mo);
+  $('stApi').textContent=fmtUSD(c.apiMo);
+  $('stBe').textContent=c.be.T!==null?'~'+fmtTok(c.be.T):'—';
+  $('stMargin').textContent=fmtPct(Math.max(c.mg.api,c.mg.gpu,c.mg.own));
+  const per=c.best.n, wG=c.W/per, kvG=c.kvSeq/per, ohG=OH_GPU;
+  const used=wG+kvG+ohG, tot=used+Math.max(0,c.best.g.vram-used);
+  $('vw').style.width=(wG/tot*100)+'%'; $('vk').style.width=(kvG/tot*100)+'%';
+  $('vo').style.width=(ohG/tot*100)+'%'; $('vf').style.width=(Math.max(0,c.best.g.vram-used)/tot*100)+'%';
+  $('vbarTxt').textContent='1× '+c.best.g.name+': '+fmtGB(wG)+' + '+fmtGB(kvG)+' + '+fmtGB(ohG)+' = '+fmtGB(used)+' / '+c.best.g.vram+' GB · KV '+Math.round(c.kvt*GB1).toLocaleString('en-US')+' B/tok';
+  const cfgs=c.configs.filter(x=>x.fits).sort((a,b)=>a.per1m-b.per1m);
+  const bestId=c.best.g.id;
+  $('cfgList').innerHTML=cfgs.map(x=>{
+    let badge='';
+    if(!x.covered) badge='<span class="qbadge bad">'+T('qNoCov')+'</span>';
+    else if(x.queue) badge='<span class="qbadge warn">'+T('qQueue')+'</span>';
+    else if(x.g.id===bestId) badge='<span class="qbadge best">'+T('qBest')+'</span>';
+    return '<div class="cfg'+(x.g.id===bestId?' best':'')+'"><b>'+x.n+'× '+x.g.name+'</b>'
+      +'<span class="m">'+fmtAgg(x.agg)+' '+T('cfgAgg')+'</span>'
+      +'<span class="m">'+fmtUSD(x.mo)+' '+T('cfgMo')+'</span>'
+      +'<span class="m">'+fmtUSD(x.per1m)+' '+T('cfg1m')+'</span>'+badge+'</div>';
+  }).join('');
+  const gw=$('gapWarn');
+  if(!c.best.covered){ gw.className='gapwarn on';
+    gw.textContent=T('gapWarnT',fmtTok(c.req),fmtTok(c.best.served),(100*c.best.served/c.traffic).toFixed(0)); }
+  else gw.className='gapwarn';
+  const cells=[
+    {id:'Api',p:c.api1m,mo:c.apiMo,mg:c.mg.api},
+    {id:'Gpu',p:c.best.per1m,mo:c.best.mo,mg:c.mg.gpu},
+    {id:'Own',p:c.own1m,mo:c.ownMo,mg:c.mg.own}];
+  const minP=Math.min(cells[0].p,cells[1].p,cells[2].p);
+  cells.forEach(cl=>{
+    $('c'+cl.id+'1m').innerHTML=fmtUSD(cl.p)+' <small>/1M</small>';
+    $('c'+cl.id+'Mo').textContent=fmtUSD(cl.mo);
+    $('c'+cl.id+'Mg').textContent=fmtPct(cl.mg);
+    $('best'+cl.id).style.display=cl.p===minP?'inline-block':'none';
+    $('comp'+cl.id).classList.toggle('hl',cl.p===minP);
+  });
+  renderChart(c,inp);
+  const f=x=>x!==null?fmtTok(x):T('beNone');
+  const dir=c.be.T===c.be.raw?'=':(c.be.T>c.be.raw?T('sensNear'):T('sensFar'));
+  $('sensOut').innerHTML=T('sensT','<b>'+f(c.be.raw)+'</b>',inp.shock,'<b>'+f(c.be.T)+'</b>',dir);
+  $('riskOut').innerHTML=T('riskT','<b>'+(inp.avail*100)+'%</b>','<b>'+c.risk.downHrs.toFixed(1)+'</b>','<b>'+fmtUSD(c.risk.lost)+'</b>','<b>'+fmtUSD(c.risk.total)+'</b>');
+  renderChurn(inp);
+  $('scenId').textContent=T('scenLbl')+' '+scenId(inp);
+  window.__last={inp,c};
+}
+/* ---------- share / export ---------- */
+const encInp=p=>btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+function decInp(s){ try{
+  const b=s.replace(/-/g,'+').replace(/_/g,'/');
+  return JSON.parse(decodeURIComponent(escape(atob(b))));
+}catch(e){ return null; } }
+function download(name,text,mime){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:mime}));
+  a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+function mdReport(){
+  const {inp,c}=window.__last;
+  const L=(k)=>T(k).replace(/<[^>]+>/g,'');
+  const rows=[
+    '# IUE-Sim — '+T('mdTitle')+' ('+scenId(inp)+')','',
+    '> '+T('docTitle')+' · '+new Date().toISOString().slice(0,10),'',
+    '## '+T('mdInputs'),'',
+    '- '+L('lblModel')+': '+c.m.name,
+    '- '+L('lblQuant')+': '+c.q.name,
+    '- '+L('lblCtx')+': '+(inp.ctx/1024)+'K',
+    '- '+L('lblUsers')+': '+inp.users,
+    '- KV FP8: '+(inp.kv8?'sí/yes':'no'),
+    '- '+L('lblTraffic')+': '+fmtTok(inp.traffic),
+    '- '+L('lblIn')+': '+Math.round(inp.inR*100)+'%',
+    '- '+L('lblPeak')+': ×'+inp.peak.toFixed(1),
+    '- '+L('lblApi')+': '+byId(APIS,inp.api).name+' ('+fmtUSD(c.apiBlend)+'/1M)',
+    '- '+L('lblRev')+': '+fmtUSD(inp.rev)+'/1M','',
+    '## '+T('mdResults'),'',
+    '| '+T('mdMode')+' | $/1M | $/mes | '+L('cmpMargin')+' |',
+    '|---|---|---|---|',
+    '| '+L('cmpApi')+' | '+fmtUSD(c.api1m)+' | '+fmtUSD(c.apiMo)+' | '+fmtPct(c.mg.api)+' |',
+    '| '+L('cmpGpu')+' ('+c.best.n+'× '+c.best.g.name+') | '+fmtUSD(c.best.per1m)+' | '+fmtUSD(c.best.mo)+' | '+fmtPct(c.mg.gpu)+' |',
+    '| '+L('cmpOwn')+' | '+fmtUSD(c.own1m)+' | '+fmtUSD(c.ownMo)+' | '+fmtPct(c.mg.own)+' |','',
+    '- '+L('chartTitle')+': '+(c.be.T!==null?T('beVal',fmtTok(c.be.T)):T('mdNever')),
+    '- '+L('lVram')+': '+fmtGB(c.vramNeed)+' · KV '+Math.round(c.kvt*GB1).toLocaleString('en-US')+' B/tok','',
+    '_'+L('n1')+'_'
+  ];
+  download('iue-sim-'+scenId(inp)+'.md',rows.join('\n'),'text/markdown');
+}
+function csvReport(){
+  const {inp,c}=window.__last;
+  const rows=[['section','key','value']];
+  const S=(a,b,v)=>rows.push([a,b,v]);
+  const q=v=>"'"+String(v).replace(/"/g,'""')+'"';
+  Object.entries(inp).forEach(([k,v])=>S('input',k,q(typeof v==='object'?JSON.stringify(v):v)));
+  S('result','vram_model_kv_GB',c.vramNeed.toFixed(2));
+  S('result','kv_bytes_per_token',Math.round(c.kvt*GB1));
+  S('result','best_gpu',c.best.n+'x '+c.best.g.name);
+  S('result','best_agg_tokps',c.best.agg.toFixed(1));
+  S('result','cloud_mo',c.best.mo.toFixed(2));
+  S('result','cloud_per_1m',c.best.per1m.toFixed(4));
+  S('result','api_per_1m',c.api1m.toFixed(4));
+  S('result','api_mo',c.apiMo.toFixed(2));
+  S('result','own_per_1m',c.own1m.toFixed(4));
+  S('result','own_mo',c.ownMo.toFixed(2));
+  S('result','break_even_tok_mo',c.be.T!==null?Math.round(c.be.T):'none');
+  c.be.pts.forEach(pt=>S('breakeven',Math.round(pt.T),pt.f===null?'':pt.f.toFixed(4)));
+  download('iue-sim-'+scenId(inp)+'.csv',rows.map(r=>r.join(',')).join('\n'),'text/csv');
+}
+/* ---------- language ---------- */
+function setLang(l){
+  lang=l; try{ localStorage.setItem('iue-lang',l); }catch(e){}
+  document.title=T('docTitle');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.innerHTML=T(el.getAttribute('data-i18n')); });
+  $('langEs').classList.toggle('on',l==='es');
+  $('langEn').classList.toggle('on',l==='en');
+  render();
+}
+/* ---------- tests ---------- */
+function runTestsUI(){
+  const res=runSelfTests();
+  const okN=res.filter(r=>r.ok).length;
+  $('testsOut').innerHTML=T(okN===res.length?'testsOk':'testsFail',okN)
+    +res.map(r=>'<div class="testrow '+(r.ok?'ok':'bad')+'">'+(r.ok?'✓':'✗')+' '+T(r.id+'n')+' — '+esc(r.detail)+'</div>').join('');
+}
+/* ---------- init ---------- */
+function init(){
+  populate();
+  const d=defInp();
+  applyInp(d);
+  const h=location.hash.match(/s=([A-Za-z0-9_-]+)/);
+  if(h){ const p=decInp(h[1]); if(p){ applyInp(Object.assign(defInp(),p)); } }
+  ['gpuL4','gpuA10','gpu4090','gpuA100','gpuH100'].forEach(id=>{ if(!$(id).value) $(id).value=0; });
+  const api0=byId(APIS,$('selApi').value);
+  $('apiIn').value=api0.pin; $('apiOut').value=api0.pout;
+  ['selModel','selQuant','selCtx','rngUsers','chkKv8','rngTraffic','rngIn','rngPeak','selApi','rngRev','rngShock','selAvail','apiIn','apiOut','gpuL4','gpuA10','gpu4090','gpuA100','gpuH100']
+    .forEach(id=>{ $(id).addEventListener('input',render); $(id).addEventListener('change',render); });
+  $('selApi').addEventListener('change',()=>{ const a=byId(APIS,$('selApi').value); $('apiIn').value=a.pin; $('apiOut').value=a.pout; render(); });
+  $('selModel').addEventListener('change',()=>{ const m=byId(MODELS,$('selModel').value);
+    if(+$('selCtx').value>m.ctxMax) $('selCtx').value=CTXS.filter(c=>c<=m.ctxMax).pop(); });
+  $('langEs').addEventListener('click',()=>setLang('es'));
+  $('langEn').addEventListener('click',()=>setLang('en'));
+  $('btnShare').addEventListener('click',()=>{
+    const url=location.href.split('#')[0]+'#s='+encInp(readInp());
+    const out=$('urlOut'); out.style.display='block';
+    const manual=()=>{ out.innerHTML='<b>'+T('shareMan')+'</b><br><span style="word-break:break-all">'+esc(url)+'</span>'; };
+    const ok=()=>{ out.innerHTML=T('shareOk')+'<br><span style="word-break:break-all">'+esc(url)+'</span>'; };
+    manual();
+    try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok,()=>{}); }catch(e){}
+  });
+  $('btnMd').addEventListener('click',mdReport);
+  $('btnCsv').addEventListener('click',csvReport);
+  /* puente SWARM-OPS (v3.6): importar el post-mortem JSON exportado por la v3.5,
+     con Laya AI como guardián (noul valida la estructura, choice clasifica la causa). */
+  $('btnImportPm').addEventListener('click',()=>$('pmFile').click());
+  $('pmFile').addEventListener('change',e=>{
+    const f=e.target.files&&e.target.files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=()=>{ let j=null,perr=null;
+      try{ j=JSON.parse(String(rd.result)); }catch(err){ perr=err.message; }
+      if(perr!==null){ pmImport=null; pmImportName='';
+        const st=$('layaStatus'); if(st) st.style.display='none';
+        $('churnOut').innerHTML='<b>'+T('churnHead')+'</b><br><span style="color:var(--red)">'+esc(T('churnErr','JSON.parse: '+perr))+'</span>'; return; }
+      importPostMortem(j,f.name).catch(err=>{
+        layaStatus('✗ '+T('layaImportErr',(err&&err.message)||String(err)),'err');
+      });
+    };
+    rd.readAsText(f); e.target.value='';
+  });
+  /* ganchos de consola/demo (también los usan las verificaciones):
+     importPmObject(jsonDelPostMortem,'demo.json') → pasa por la guardia de Laya (v3.6)
+     setPmImport({sla:{last:{tokensLost:4200,reprefTokens:800}},meta:{seedHex:'0x5EED0000',mode:'wan'},rootCause:'cascade'},'demo.json') → inyecta sin Laya */
+  window.importPmObject=(j,name)=>importPostMortem(j,name||'consola.json');
+  window.setPmImport=(j,name)=>{ pmImport=j; pmImportName=name||'consola'; render(); };
+  $('btnTests').addEventListener('click',runTestsUI);
+  /* escenario compartido: aplicar también si el hash cambia con la página abierta */
+  window.addEventListener('hashchange',()=>{
+    const h=location.hash.match(/s=([A-Za-z0-9_-]+)/);
+    if(h){ const p=decInp(h[1]); if(p){ applyInp(Object.assign(defInp(),p)); render(); } }
+  });
+  setLang(lang);
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>

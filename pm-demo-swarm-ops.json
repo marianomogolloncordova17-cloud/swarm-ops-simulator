@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "version": "v3.5-alpha SWARM-OPS",
+    "generatedAt": "2026-10-31T18:00:00.000Z",
+    "seed": 1590922584,
+    "seedHex": "0x5EC00018",
+    "runId": 3,
+    "scenarioId": "KC1-cascade",
+    "mode": "wan"
+  },
+  "sla": {
+    "aggregate": {
+      "runs": 3,
+      "okRuns": 2,
+      "uptime": 0.667,
+      "p95": 480,
+      "tokens": 2700,
+      "reprefPct": 0.296
+    },
+    "last": {
+      "runId": 3,
+      "ok": false,
+      "tokens": 900,
+      "msSim": 6420,
+      "reRoutes": 2,
+      "reprefTokens": 800,
+      "p95": 480,
+      "tokensLost": 4200,
+      "cf": null
+    }
+  },
+  "taxonomy": { "cascade": 2, "manual": 1 },
+  "rootCause": "cascade",
+  "events": [
+    { "v": 1, "eventId": 1, "runId": 3, "seed": 1590922584, "scenarioId": "KC1-cascade", "kind": "failure", "cause": "cascade", "mode": "wan", "tSim": 1240, "peerId": "gamma", "blocks": [12, 13], "detail": "switch cae: gamma y delta fuera", "derived": { "reprefillMs": 900, "tokensLost": 1800, "clientVisibleImpact": 1 } },
+    { "v": 1, "eventId": 2, "runId": 3, "seed": 1590922584, "scenarioId": "KC1-cascade", "kind": "failure", "cause": "cascade", "mode": "wan", "tSim": 3980, "peerId": "beta", "blocks": [7], "detail": "re-hosting incompleto durante la cascada", "derived": { "reprefillMs": 600, "tokensLost": 2400, "clientVisibleImpact": 1 } }
+  ]
+}
